@@ -12,13 +12,9 @@ KAP_ANA_URL = "https://www.kap.org.tr/tr"
 # KAP'ın HTML'i değişirse buraya yeni selector'lar eklenebilir.
 
 SIRKET_INPUT_SELECTORS = [
+    (By.ID,           "search-input"),
     (By.XPATH,        "/html/body/main/section[1]/div/div/div[2]/div[2]/div/div/div[1]/div/div[1]/input"),
-    (By.CSS_SELECTOR, "input[placeholder*='irket']"),
-    (By.CSS_SELECTOR, "input[placeholder*='Şirket']"),
-    (By.XPATH,        "//input[contains(@placeholder,'irket')]"),
-    (By.CSS_SELECTOR, "input.company-search"),
-    (By.ID,           "companySearch"),
-    (By.ID,           "sirketUnvani"),
+    (By.CSS_SELECTOR, "input[placeholder='Şirket Ünvanı']"),
 ]
 
 ONERI_SELECTORS = [
