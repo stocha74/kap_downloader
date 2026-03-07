@@ -1,4 +1,5 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions as EC
 import time
@@ -11,6 +12,7 @@ KAP_ANA_URL = "https://www.kap.org.tr/tr"
 # KAP'ın HTML'i değişirse buraya yeni selector'lar eklenebilir.
 
 SIRKET_INPUT_SELECTORS = [
+    (By.XPATH,        "/html/body/main/section[1]/div/div/div[2]/div[2]/div/div/div[1]/div/div[1]/input"),
     (By.CSS_SELECTOR, "input[placeholder*='irket']"),
     (By.CSS_SELECTOR, "input[placeholder*='Şirket']"),
     (By.XPATH,        "//input[contains(@placeholder,'irket')]"),
@@ -71,16 +73,11 @@ def finansal_tablolari_indir(driver, sirket_listesi: list, bekleme: int = 15):
         print(f"\n>>> Şirket işleniyor: {sirket}")
 
         try:
-            # ── Şirket adını gir ─────────────────────────────────────────────
+            # ── Şirket adını gir ve Enter'a bas ──────────────────────────────
             sirket_input = element_bul(driver, SIRKET_INPUT_SELECTORS, bekleme)
             sirket_input.clear()
             time.sleep(0.5)
-            sirket_input.send_keys(sirket)
-            time.sleep(2)  # Autocomplete listesinin yüklenmesini bekle
-
-            # ── Açılan öneriyi seç ───────────────────────────────────────────
-            oneri = element_bul(driver, ONERI_SELECTORS, bekleme)
-            oneri.click()
+            sirket_input.send_keys(sirket, Keys.RETURN)
             time.sleep(2)
 
             # ── Yıl ComboBox'ındaki mevcut yılları oku ───────────────────────
