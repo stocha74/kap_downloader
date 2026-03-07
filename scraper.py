@@ -2,8 +2,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import os
+import re
 import time
 from utils import element_bul
+
+
+def _guvenli_isim(isim: str) -> str:
+    """Klasör adı olarak kullanılamayacak karakterleri temizler."""
+    return re.sub(r'[\\/*?:"<>|]', "_", isim).strip()
 
 KAP_ANA_URL = "https://www.kap.org.tr/tr"
 
@@ -49,7 +56,7 @@ FIN_TAB_MENU_SELECTORS = [
 ]
 # ─────────────────────────────────────────────────────────────────────────────
 
-def finansal_tablolari_indir(driver, sirket_listesi: list, bekleme: int = 15):
+def finansal_tablolari_indir(driver, sirket_listesi: list, bekleme: int = 15, download_dir: str = "downloads"):
 
     # Ana sayfayı aç
     driver.get(KAP_ANA_URL)
@@ -62,6 +69,17 @@ def finansal_tablolari_indir(driver, sirket_listesi: list, bekleme: int = 15):
 
     for sirket in sirket_listesi:
         print(f"\n>>> Şirket işleniyor: {sirket}")
+
+        # Her şirket için ayrı indirme klasörü oluştur ve Chrome'a bildir
+        sirket_klasoru = os.path.abspath(
+            os.path.join(download_dir, _guvenli_isim(sirket))
+        )
+        os.makedirs(sirket_klasoru, exist_ok=True)
+        driver.execute_cdp_cmd("Page.setDownloadBehavior", {
+            "behavior": "allow",
+            "downloadPath": sirket_klasoru,
+        })
+        print(f"  📂 İndirme klasörü: {sirket_klasoru}")
 
         try:
             # ── Şirket adını gir, dropdown'dan ilk öneriyi seç ───────────────
