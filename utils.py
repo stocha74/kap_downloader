@@ -69,7 +69,7 @@ def element_bul(driver, selector_listesi: list, bekleme: int = 15):
     for by, deger in selector_listesi:
         try:
             wait = WebDriverWait(driver, min(bekleme, 5))
-            el = wait.until(EC.presence_of_element_located((by, deger)))
+            el = wait.until(EC.element_to_be_clickable((by, deger)))
             return el
         except Exception as e:
             hatalar.append(f"  [{by}='{deger}']")
