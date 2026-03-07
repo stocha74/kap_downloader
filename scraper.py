@@ -108,11 +108,13 @@ def finansal_tablolari_indir(driver, sirket_listesi: list, bekleme: int = 15):
                 # Yıl dropdown'ını aç ve ilgili yıla tıkla
                 yil_buton = element_bul(driver, YIL_BUTON_SELECTORS, bekleme)
                 yil_buton.click()
-                time.sleep(1)
-                driver.find_element(
-                    By.XPATH,
-                    f"//ul[contains(@class,'pt-0')]//label[normalize-space()='{yil}']"
-                ).click()
+                yil_secim = WebDriverWait(driver, bekleme).until(
+                    EC.element_to_be_clickable((
+                        By.XPATH,
+                        f"//ul[contains(@class,'pt-0')]//button[.//label[normalize-space()='{yil}']]"
+                    ))
+                )
+                yil_secim.click()
                 time.sleep(1)
 
                 # Periyot: Tüm Dönemler
