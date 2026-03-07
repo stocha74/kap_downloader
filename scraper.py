@@ -1,6 +1,6 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait, Select
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 from utils import element_bul
@@ -8,8 +8,6 @@ from utils import element_bul
 KAP_ANA_URL = "https://www.kap.org.tr/tr"
 
 # ── Olası selector listeleri ──────────────────────────────────────────────────
-# Her liste için en güvenilir seçenek başa alınmıştır.
-# KAP'ın HTML'i değişirse buraya yeni selector'lar eklenebilir.
 
 SIRKET_INPUT_SELECTORS = [
     (By.ID,           "search-input"),
@@ -23,11 +21,10 @@ ONERI_SELECTORS = [
     (By.XPATH,        "(//*[@id='select-dropdown']//button)[1]"),
 ]
 
-YIL_SELECT_SELECTORS = [
-    (By.XPATH, "//select[.//option[string-length(normalize-space())=4 and number(normalize-space())>2000]]"),
-    (By.CSS_SELECTOR, "select[name*='yil'], select[id*='yil'], select[id*='Yil']"),
-    (By.ID,           "yilSecimi"),
-    (By.CSS_SELECTOR, "select.year-select"),
+# Yıl dropdown açma butonu (div.select-button)
+YIL_BUTON_SELECTORS = [
+    (By.CSS_SELECTOR, "div.select-button"),
+    (By.XPATH,        "//div[contains(@class,'select-button')]"),
 ]
 
 PERIYOT_SELECT_SELECTORS = [
@@ -78,14 +75,22 @@ def finansal_tablolari_indir(driver, sirket_listesi: list, bekleme: int = 15):
             oneri.click()
             time.sleep(2)
 
-            # ── Yıl ComboBox'ındaki mevcut yılları oku ───────────────────────
-            yil_el = element_bul(driver, YIL_SELECT_SELECTORS, bekleme)
+            # ── Yıl dropdown'ını aç ve tüm yılları oku ───────────────────────
+            yil_buton = element_bul(driver, YIL_BUTON_SELECTORS, bekleme)
+            yil_buton.click()
+            time.sleep(1)
+
+            yil_label_els = driver.find_elements(By.CSS_SELECTOR, "ul.pt-0 li label")
             mevcut_yillar = [
-                opt.text.strip()
-                for opt in Select(yil_el).options
-                if opt.text.strip().isdigit() and int(opt.text.strip()) <= 2025
+                lbl.text.strip()
+                for lbl in yil_label_els
+                if lbl.text.strip().isdigit() and int(lbl.text.strip()) > 2000
             ]
             print(f"  Bulunan yıllar: {mevcut_yillar}")
+
+            # Dropdown'ı kapat
+            driver.find_element(By.TAG_NAME, "body").send_keys(Keys.ESCAPE)
+            time.sleep(0.5)
 
             if not mevcut_yillar:
                 print(f"  ⚠️  {sirket} için yıl bulunamadı, atlanıyor.")
@@ -95,13 +100,19 @@ def finansal_tablolari_indir(driver, sirket_listesi: list, bekleme: int = 15):
             for yil in mevcut_yillar:
                 print(f"  -> Yıl: {yil}")
 
-                # Yılı seç
-                yil_el = element_bul(driver, YIL_SELECT_SELECTORS, bekleme)
-                Select(yil_el).select_by_visible_text(yil)
+                # Yıl dropdown'ını aç ve ilgili yıla tıkla
+                yil_buton = element_bul(driver, YIL_BUTON_SELECTORS, bekleme)
+                yil_buton.click()
+                time.sleep(1)
+                driver.find_element(
+                    By.XPATH,
+                    f"//ul[contains(@class,'pt-0')]//label[normalize-space()='{yil}']"
+                ).click()
                 time.sleep(1)
 
                 # Periyot: Tüm Dönemler
                 try:
+                    from selenium.webdriver.support.ui import Select
                     periyot_el = element_bul(driver, PERIYOT_SELECT_SELECTORS, bekleme)
                     periyot_select = Select(periyot_el)
                     for opt in periyot_select.options:
