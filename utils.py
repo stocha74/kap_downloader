@@ -1,9 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
 import os
 
 
@@ -43,10 +41,7 @@ def tarayici_ac(download_dir: str) -> webdriver.Chrome:
     }
     options.add_experimental_option("prefs", prefs)
 
-    driver = webdriver.Chrome(
-        service=Service(ChromeDriverManager().install()),
-        options=options
-    )
+    driver = webdriver.Chrome(options=options)
 
     # 5) navigator.webdriver özelliğini CDP ile gizle
     driver.execute_cdp_cmd(
