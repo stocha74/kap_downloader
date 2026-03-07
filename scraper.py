@@ -81,11 +81,16 @@ def finansal_tablolari_indir(driver, sirket_listesi: list, bekleme: int = 15):
             time.sleep(1)
 
             yil_label_els = driver.find_elements(By.CSS_SELECTOR, "ul.pt-0 li label")
-            mevcut_yillar = [
-                lbl.text.strip()
-                for lbl in yil_label_els
-                if lbl.text.strip().isdigit() and int(lbl.text.strip()) > 2000
-            ]
+            mevcut_yillar = sorted(
+                [
+                    lbl.text.strip()
+                    for lbl in yil_label_els
+                    if lbl.text.strip().isdigit()
+                    and 2000 < int(lbl.text.strip()) <= 2025
+                ],
+                key=int,
+                reverse=True,
+            )
             print(f"  Bulunan yıllar: {mevcut_yillar}")
 
             # Dropdown'ı kapat
