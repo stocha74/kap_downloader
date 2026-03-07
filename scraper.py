@@ -4,8 +4,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 from utils import element_bul
 
-KAP_ANA_URL   = "https://www.kap.org.tr/tr"
-FIN_TABLO_URL = "https://www.kap.org.tr/tr/finansal-tablo"
+KAP_ANA_URL = "https://www.kap.org.tr/tr"
 
 # ── Olası selector listeleri ──────────────────────────────────────────────────
 # Her liste için en güvenilir seçenek başa alınmıştır.
@@ -51,9 +50,9 @@ INDIR_BTN_SELECTORS = [
 ]
 
 FIN_TAB_MENU_SELECTORS = [
-    (By.XPATH, "//a[contains(text(),'Finansal Tablo')]"),
+    (By.XPATH, "//*[contains(text(),'Finansal Tablolar') and (self::button or self::span or self::div or self::a or self::li)]"),
+    (By.XPATH, "//*[contains(text(),'Finansal Tablo')]"),
     (By.CSS_SELECTOR, "a[href*='finansal-tablo']"),
-    (By.XPATH, "//li//a[contains(text(),'Finansal')]"),
 ]
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -63,14 +62,10 @@ def finansal_tablolari_indir(driver, sirket_listesi: list, bekleme: int = 15):
     driver.get(KAP_ANA_URL)
     time.sleep(4)
 
-    # "Finansal Tablolar" menüsüne tıkla, bulamazsa direkt URL ile git
-    try:
-        fin_tab_link = element_bul(driver, FIN_TAB_MENU_SELECTORS, bekleme=8)
-        fin_tab_link.click()
-        time.sleep(3)
-    except Exception:
-        driver.get(FIN_TABLO_URL)
-        time.sleep(4)
+    # Ana sayfadaki "Finansal Tablolar" tab'ına tıkla
+    fin_tab_link = element_bul(driver, FIN_TAB_MENU_SELECTORS, bekleme=8)
+    fin_tab_link.click()
+    time.sleep(3)
 
     for sirket in sirket_listesi:
         print(f"\n>>> Şirket işleniyor: {sirket}")
