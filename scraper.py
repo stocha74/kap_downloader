@@ -18,11 +18,9 @@ SIRKET_INPUT_SELECTORS = [
 ]
 
 ONERI_SELECTORS = [
-    (By.CSS_SELECTOR, "ul.suggestion-list li:first-child"),
-    (By.CSS_SELECTOR, ".autocomplete-items div:first-child"),
-    (By.CSS_SELECTOR, ".dropdown-item:first-child"),
-    (By.XPATH,        "(//ul[contains(@class,'suggest')]//li)[1]"),
-    (By.XPATH,        "(//*[contains(@class,'suggestion')])[1]"),
+    (By.CSS_SELECTOR, "#select-dropdown button"),
+    (By.CSS_SELECTOR, "#select-dropdown ul li button"),
+    (By.XPATH,        "(//*[@id='select-dropdown']//button)[1]"),
 ]
 
 YIL_SELECT_SELECTORS = [
@@ -69,11 +67,15 @@ def finansal_tablolari_indir(driver, sirket_listesi: list, bekleme: int = 15):
         print(f"\n>>> Şirket işleniyor: {sirket}")
 
         try:
-            # ── Şirket adını gir ve Enter'a bas ──────────────────────────────
+            # ── Şirket adını gir, dropdown'dan ilk öneriyi seç ───────────────
             sirket_input = element_bul(driver, SIRKET_INPUT_SELECTORS, bekleme)
             sirket_input.clear()
             time.sleep(0.5)
-            sirket_input.send_keys(sirket, Keys.RETURN)
+            sirket_input.send_keys(sirket)
+            time.sleep(2)  # Dropdown'ın yüklenmesini bekle
+
+            oneri = element_bul(driver, ONERI_SELECTORS, bekleme)
+            oneri.click()
             time.sleep(2)
 
             # ── Yıl ComboBox'ındaki mevcut yılları oku ───────────────────────
